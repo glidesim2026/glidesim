@@ -1,70 +1,22 @@
 # GlideSim
 
-A Monte Carlo simulator focused on testing drawdown strategies.
+Monte Carlo simulator for testing retirement drawdown strategies. Streamlit web app with regime-switching market model.
 
-## Project Scope
+## Commands
 
-- **Primary Goal**: Test and compare drawdown strategies in a simulated environment
-- **Simulation**: Monte Carlo with correlated year-over-year returns
-- **Portfolio**: Configurable stocks/bonds allocation (X/Y split)
-- **Spending**: Annual drawdown with selectable strategies (start with inflation-adjusted, extensible for future strategies)
-- **Rebalancing**: Simple on/off toggle for annual rebalancing to target allocation
-- **No tax modeling**: All values are gross amounts
-
-## Key Metrics
-
-- Portfolio failure rate (probability of running out of money)
-- Final portfolio values at various percentiles
-
-## Interface
-
-- Locally hosted web app
-- Basic visualizations
-
-## Out of Scope
-
-- Income modeling (Social Security, pensions, etc.)
-- Tax calculations
-- Session persistence
-- External data imports
-
-## Testing
-
-### Unit Tests
-
-Run all tests:
 ```bash
-uv run pytest
+uv run streamlit run src/glidesim/app.py  # Run app
+uv run pytest                              # Run tests
+uv run pytest --cov=glidesim               # Run with coverage
 ```
 
-Run with verbose output:
-```bash
-uv run pytest -v
-```
-
-Run with coverage:
-```bash
-uv run pytest --cov=glidesim --cov-report=term-missing
-```
-
-Test files follow the pattern `test_*.py` and are located alongside the modules they test in `tests/` subdirectories.
-
-**Coverage**: 99% on non-UI code. The `ui/` directory and `app.py` are excluded from coverage requirements (tested manually).
-
-### UI Testing
-
-UI testing is manual. Run the app and verify charts render correctly:
-```bash
-uv run streamlit run src/glidesim/app.py
-```
-
-#### Using Playwright MCP
+### Using Playwright MCP
 
 For automated visual verification during development, use the Playwright MCP tools. Always close the browser at the end of each session.
 
 **Pre-flight cleanup:**
 
-Before starting, check for and clean up any existing sessions:
+Before doing any new round of testing, check for and clean up any existing sessions:
 
 1. Check if Streamlit is already running:
    ```bash
@@ -103,81 +55,18 @@ Before starting, check for and clean up any existing sessions:
 6. **Always close the browser when done** (prevents issues in future sessions):
    - `mcp__playwright__browser_close`
 
-**Re-testing after code changes:**
-- The browser persists between operations within a session - just call `browser_navigate` again to reload
-- No need to close and reopen between tests in the same session
 
-**Troubleshooting:**
-- If you get "Opening in existing browser session" errors, manually close all Chrome windows and retry
-- If two windows appear, ensure you're using `--server.headless=true` to prevent Streamlit from auto-opening a browser
+## Testing
 
-### Writing New Tests
-
-- Place test files in `tests/` subdirectory next to the module being tested
+- Tests live in `tests/` subdirectories alongside modules
 - Use `np.random.default_rng(seed)` for deterministic tests
-- Use `np.testing.assert_array_equal` for numpy array comparisons
-- Use `np.isclose` for floating point comparisons
-- Shared fixtures are available in `conftest.py`:
-  - `make_config` - factory fixture for SimulationConfig
-  - `make_results` - factory fixture for SimulationResults
+- Fixtures in `conftest.py`: `make_config`, `make_results`
+- Coverage target: 99% on non-UI code (`ui/` and `app.py` excluded)
 
-## Analysis Scripts
+## Architecture
 
-### Regime Distribution Analysis
-
-Analyze the return distributions produced by the market model for each regime:
-
-```bash
-uv run python scripts/analyze_regime_distributions.py
-```
-
-Options:
-- `--n-simulations N`: Number of simulations (default: 5000)
-- `--n-years N`: Years per simulation (default: 100)
-- `--seed N`: Random seed for reproducibility (default: 42)
-- `--output FILE`: Save results to JSON file
-- `--plots`: Generate histogram plots (requires matplotlib)
-- `--plot-dir DIR`: Directory for plot output
-
-Examples:
-```bash
-# Quick analysis
-uv run python scripts/analyze_regime_distributions.py --n-simulations 1000
-
-# Full analysis with JSON output
-uv run python scripts/analyze_regime_distributions.py --output results.json
-
-# Generate plots (install matplotlib first: uv add matplotlib --dev)
-uv run python scripts/analyze_regime_distributions.py --plots --plot-dir ./plots
-```
-
-Output includes per-regime statistics for stocks, bonds, and inflation:
-- Count, mean, std, min, max
-- Percentiles (1st, 5th, 25th, 50th, 75th, 95th, 99th)
-- Skewness and kurtosis
-
-## Code Style
-
-### app.py
-
-Treat `app.py` as a minimal main script. It should only:
-- Set page config and title
-- Wire together UI components from modules
-- Manage top-level session state
-
-All substantive logic should live in modules:
-- `ui/sidebar.py` - input widgets and configuration
-- `ui/results.py` - results display and visualizations
-- `ui/registry.py` - strategy registry and parameter widgets
-- `simulation/` - simulation logic
-- `analysis/` - metrics and plotting
-- `strategies/` - withdrawal strategy implementations
-
-### Adding New Strategies
-
-Withdrawal strategies use a registry pattern. To add a new strategy:
-
-1. Create a new strategy class in `strategies/` that inherits from `Strategy`
-2. Add an entry to `STRATEGY_REGISTRY` in `ui/registry.py` with:
-   - The strategy class
-   - A `render_params` function that renders Streamlit widgets and returns kwargs
+`app.py` is a thin entrypoint. All logic lives in modules:
+- `simulation/` - Monte Carlo engine and market model
+- `strategies/` - Withdrawal strategy implementations
+- `analysis/` - Metrics and plotting
+- `ui/` - Streamlit widgets and results display

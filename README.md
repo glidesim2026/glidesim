@@ -9,8 +9,12 @@ This application simulates portfolio performance over a retirement horizon using
 ## Quick Start
 
 ```bash
-# Install dependencies
-uv sync --all-extras
+# Install dependencies (including dev tools)
+uv sync --all-extras --group dev
+
+# Install pre-commit hooks
+uv run pre-commit install
+uv run pre-commit install --hook-type pre-push
 
 # Run the app
 uv run streamlit run src/glidesim/app.py
@@ -18,6 +22,22 @@ uv run streamlit run src/glidesim/app.py
 # Run tests
 uv run pytest
 ```
+
+## Development Setup
+
+### Prerequisites
+
+- Python 3.12+ (3.13 specified in `.python-version`)
+- [uv](https://docs.astral.sh/uv/) package manager
+
+### Pre-commit Hooks
+
+This project uses pre-commit hooks for code quality:
+
+- **Pre-commit**: Ruff linting (with auto-fix) and formatting
+- **Pre-push**: Runs pytest to ensure tests pass before pushing
+
+Hooks run automatically after installation. See `.pre-commit-config.yaml` for configuration.
 
 ## Features
 
@@ -44,16 +64,6 @@ uv run pytest
   - Portfolio trajectory percentile bands
   - Individual run explorer (best/worst/median/random)
   - Return and inflation distributions by regime
-
-## Configuration
-
-Users can configure:
-- Initial portfolio value
-- Stock/bond allocation ratio
-- Drawdown strategy and parameters
-- Time horizon (years)
-- Annual rebalancing (on/off)
-- Number of simulation runs
 
 ## Project Structure
 
@@ -82,7 +92,12 @@ src/glidesim/
 └── ui/
     ├── sidebar.py                      # Input widgets and configuration
     ├── results.py                      # Results display and charts
-    └── registry.py                     # Strategy registry for UI
+    ├── registry.py                     # Strategy registry for UI
+    ├── advanced_settings.py            # Market model parameter overrides
+    └── tests/
+
+scripts/
+└── analyze_regime_distributions.py     # Market model analysis tool
 ```
 
 ## Testing
@@ -93,26 +108,23 @@ src/glidesim/
 # Run all tests
 uv run pytest
 
-# Run with verbose output
-uv run pytest -v
-
 # Run with coverage
 uv run pytest --cov=glidesim --cov-report=term-missing
 ```
 
-### UI Testing
-
-Manual verification:
-```bash
-uv run streamlit run src/glidesim/app.py
-```
-
-Check that all charts render correctly with expected data.
-
 ## Tech Stack
 
 - **Python 3.12+**
-- **numpy**: Numerical operations
+- **numpy/scipy**: Numerical operations and statistics
 - **Streamlit**: Web UI
 - **plotly**: Interactive charts
+- **PyYAML**: Configuration files
 - **pytest**: Testing
+
+## Contributing
+
+Issues and PRs are welcome.
+
+## License
+
+MIT License - see [LICENSE.md](LICENSE.md)
