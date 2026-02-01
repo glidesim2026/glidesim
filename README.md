@@ -1,6 +1,6 @@
 # GlideSim
 
-A vibe-cded Monte Carlo simulation tool for testing drawdown strategies. This application is for information purposes only and does not provide financial advice. Personal finance is personal.
+A vibe-coded Monte Carlo simulation tool for testing drawdown strategies. This application is for informational purposes only and does not provide financial advice. Personal finance is personal.
 
 ## Overview
 
