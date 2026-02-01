@@ -1,0 +1,122 @@
+# Simulation parameters
+n_simulations: 10000
+
+# Regime-switching market model parameters
+# All returns are nominal total returns (price + dividends/coupons)
+#
+# Skewness parameters use scipy.stats.skewnorm 'a' parameter:
+#   - Negative values: left-skewed (fatter left tail, crashes more severe than rallies)
+#   - Zero: symmetric (standard normal)
+#   - Positive values: right-skewed (fatter right tail)
+# Typical ranges: -5 (strongly left-skewed) to +5 (strongly right-skewed)
+
+regimes:
+  normal:
+    means:
+      stock: 0.10
+      bond: 0.045
+      inflation: 0.025
+    std_devs:
+      stock: 0.09
+      bond: 0.06
+      inflation: 0.012
+    ar_coefficients:
+      stock: -0.05
+      bond: 0.10
+      inflation: 0.50
+    correlations:
+      stock_bond: 0.20
+      stock_inflation: 0.00
+      bond_inflation: -0.20
+    skewness:
+      stock: -1.0      # Mild negative skew: crashes slightly more severe
+      bond: 0.0        # Roughly symmetric
+      inflation: 1.0   # Slight positive skew: upside surprises more common
+    stock_model: log
+    inflation_model: log
+
+  recession:
+    means:
+      stock: -0.15
+      bond: 0.05
+      inflation: 0.015
+    std_devs:
+      stock: 0.17
+      bond: 0.10
+      inflation: 0.02
+    ar_coefficients:
+      stock: 0.20
+      bond: 0.15
+      inflation: 0.40
+    correlations:
+      stock_bond: 0.40
+      stock_inflation: 0.20
+      bond_inflation: -0.30
+    skewness:
+      stock: -6.0
+      bond: 1.0
+      inflation: -0.5
+    stock_model: log
+    inflation_model: log
+
+  stagflation:
+    means:
+      stock: 0.02
+      bond: 0.01
+      inflation: 0.06
+    std_devs:
+      stock: 0.095
+      bond: 0.10
+      inflation: 0.025
+    ar_coefficients:
+      stock: 0.10
+      bond: 0.20
+      inflation: 0.75
+    correlations:
+      stock_bond: 0.30
+      stock_inflation: 0.25
+      bond_inflation: -0.50
+    skewness:
+      stock: -4.0
+      bond: -1.5
+      inflation: 3.0
+    stock_model: log
+    inflation_model: log
+
+  depression:
+    means:
+      stock: -0.28
+      bond: 0.02
+      inflation: -0.02
+    std_devs:
+      stock: 0.22
+      bond: 0.12
+      inflation: 0.03
+    ar_coefficients:
+      stock: 0.25
+      bond: 0.20
+      inflation: 0.60
+    correlations:
+      stock_bond: 0.35
+      stock_inflation: 0.30
+      bond_inflation: -0.20
+    skewness:
+      stock: -8.0
+      bond: 1.5
+      inflation: -2.0
+    stock_model: log
+    inflation_model: direct
+
+transitions:
+  # Rows: from, Columns: to [normal, recession, stagflation, depression]
+  # Bad regimes have reduced persistence and higher exit rates to Normal
+  normal:      [0.92, 0.04, 0.025, 0.015]
+  recession:   [0.85, 0.10, 0.04, 0.01]  # Avg ~1.1 years, faster recovery
+  stagflation: [0.50, 0.05, 0.40, 0.05]  # Avg ~1.7 years, higher Normal exit
+  depression:  [0.50, 0.05, 0.05, 0.40]  # Avg ~1.7 years, reduced from 2.5
+
+warm_up_years: 5
+
+# Cap innovations at this many standard deviations to prevent
+# extreme tail events from compounding via AR dynamics.
+max_sigma: .inf
