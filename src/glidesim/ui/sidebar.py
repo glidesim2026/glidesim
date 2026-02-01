@@ -158,7 +158,7 @@ def render_sidebar() -> None:
         if st.button(
             "Run Simulation",
             type="primary",
-            use_container_width=True,
+            width='stretch',
             disabled=strategy is None or market_params is None,
         ):
             config = build_config(
