@@ -105,9 +105,7 @@ def render_results(
 
     with col1:
         st.subheader("Success Rate")
-        st.plotly_chart(
-            create_success_donut(metrics.success_rate), width='stretch'
-        )
+        st.plotly_chart(create_success_donut(metrics.success_rate), width="stretch")
 
     with col2:
         st.subheader("Key Metrics")
@@ -124,20 +122,20 @@ def render_results(
                 for pct, value in metrics.final_value_percentiles.items()
             }
         )
-        st.dataframe(percentile_df, hide_index=True, width='stretch')
+        st.dataframe(percentile_df, hide_index=True, width="stretch")
 
     st.subheader("Final Portfolio Balance Distribution")
     st.plotly_chart(
         create_final_balance_histogram(
             results.portfolio_values, metrics.final_value_percentiles
         ),
-        width='stretch',
+        width="stretch",
     )
 
     st.subheader("Portfolio Value Over Time")
     st.plotly_chart(
         create_portfolio_trajectories(results.portfolio_values, config.n_years),
-        width='stretch',
+        width="stretch",
     )
 
     st.subheader("Individual Run Explorer")
@@ -185,7 +183,7 @@ def render_results(
             sim_index=selected_index,
             n_years=config.n_years,
         ),
-        width='stretch',
+        width="stretch",
     )
 
     with st.expander("Simulation Assumptions"):
@@ -200,13 +198,13 @@ def render_results(
         with regime_col1:
             st.plotly_chart(
                 create_regime_frequency_donut(results.regimes),
-                width='stretch',
+                width="stretch",
             )
 
         with regime_col2:
             st.plotly_chart(
                 create_regime_transition_heatmap(results.regimes),
-                width='stretch',
+                width="stretch",
             )
 
         st.divider()
@@ -242,7 +240,7 @@ def render_results(
                     x_label="Annual Stock Return",
                     title="Stock Returns",
                 ),
-                width='stretch',
+                width="stretch",
             )
 
         with col2:
@@ -255,7 +253,7 @@ def render_results(
                     x_label="Annual Bond Return",
                     title="Bond Returns",
                 ),
-                width='stretch',
+                width="stretch",
             )
 
         with col3:
@@ -268,5 +266,5 @@ def render_results(
                     x_label="Annual Inflation",
                     title="Inflation",
                 ),
-                width='stretch',
+                width="stretch",
             )
